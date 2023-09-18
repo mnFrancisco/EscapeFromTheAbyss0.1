@@ -15,14 +15,19 @@ public class Inimigo : MonoBehaviour
     private Animator animator;
     private bool isAttacking = false;
 
+    
+
     public delegate void PlayerAttackEvent(int damage);
     public static event PlayerAttackEvent OnPlayerAttack;
+
+    
 
     void Start()
     {
         player = GameObject.FindGameObjectWithTag("Player").transform;
         animator = GetComponent<Animator>();
         currentHealth = maxHealth;
+        PlayerMovement.OnPlayerAttack += TakeDamage;
     }
 
     void Update()
@@ -84,5 +89,24 @@ public class Inimigo : MonoBehaviour
 
         animator.SetBool("ataque", false);
         isAttacking = false;
+    }
+
+    void TakeDamage(GameObject player)
+    {
+        // Verifique se o jogador que atacou é o mesmo objeto de jogador.
+        if (player == gameObject)
+        {
+            currentHealth -= player.GetComponent<PlayerMovement>().playerDamage;
+
+            // Verifique se o inimigo deve ser destruído.
+            if (currentHealth <= 0)
+            {
+                Morrer();
+            }
+        }
+    }
+
+    void Morrer(){
+        Destroy(gameObject, 0.1f); // Destrua o objeto do inimigo após um tempo
     }
 }
